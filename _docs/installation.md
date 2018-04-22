@@ -60,7 +60,7 @@ adjustments to the [configuration].  **docassemble** has not been
 tested on Mac or Windows, but all the dependencies are likely to be
 available for native installation on those platforms.  (E.g., see
 [MacTex] for LaTeX on Mac, and [MiKTeX] for LaTeX on Windows.)
-However, it would probably take a lot of time to figure this out, any
+However, it would probably take a lot of time to figure this out, and
 why bother, when you can install **docassemble** on a Mac or PC using
 [Docker]?.
 
