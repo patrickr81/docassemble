@@ -5,11 +5,26 @@ metadata:
   example start: 1
   example end: 7
 ---
-modules:
-  - docassemble.base.util
----
 objects:
-  - fruit: DAList
+  - fruit: |
+      DAList.using(
+        auto_gather=False,
+        gathered=True)
+comment: |
+  These attributes disable the automatic
+  gathering system.
+---
+mandatory: True
+code: |
+  num_fruits = 0
+  more_fruits = True
+---
+mandatory: True
+code: |
+  while more_fruits:
+    fruit[num_fruits]
+    num_fruits += 1
+    del more_fruits
 ---
 question: |
   Are there more fruits?
@@ -19,21 +34,6 @@ question: |
   What's the ${ ordinal(i) } fruit?
 fields:
   - Fruit: fruit[i]
----
-mandatory: True
-code: |
-  fruit.auto_gather = False
-  fruit.gathered = True
-comment: |
-  This code block disables the automatic
-  gathering system.
----
-mandatory: True
-code: |
-  fruit[0]
-  if more_fruits:
-    del more_fruits
-    fruit[len(fruit)]
 ---
 mandatory: True
 question: |

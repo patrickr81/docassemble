@@ -1,10 +1,14 @@
 #!/bin/bash
 
 export DA_ROOT="${DA_ROOT:-/usr/share/docassemble}"
-source "${DA_PYTHON:-${DA_ROOT}/local}/bin/activate"
+export DAPYTHONVERSION="${DAPYTHONVERSION:-3}"
+export DA_DEFAULT_LOCAL="local3.6"
 
-emailfile=$(mktemp)
+export DA_ACTIVATE="${DA_PYTHON:-${DA_ROOT}/${DA_DEFAULT_LOCAL}}/bin/activate"
+source "${DA_ACTIVATE}"
 
-cat > $emailfile
-python -m docassemble.webapp.process_email $emailfile
-rm -f $emailfile
+emailfile="$(mktemp)"
+
+cat > "$emailfile"
+python -m docassemble.webapp.process_email "$emailfile"
+rm -f "$emailfile"

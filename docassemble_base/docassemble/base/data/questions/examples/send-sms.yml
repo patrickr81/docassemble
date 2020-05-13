@@ -2,16 +2,12 @@ metadata:
   title: Send SMS message
   documentation: "https://docassemble.org/docs/functions.html#send_sms"
 ---
-modules:
-  - docassemble.base.util
----
 objects:
   client: Individual
 ---
 template: my_message
-subject: Hello, world!
 content: |
-  Hi there, planet.
+  Hello, world!
 ---
 question: |
   What is your phone number?

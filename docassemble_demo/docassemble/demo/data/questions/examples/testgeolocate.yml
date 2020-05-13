@@ -1,11 +1,8 @@
 metadata:
   title: Google Map
   documentation: "https://docassemble.org/docs/functions.html#map_of"
-  example start: 2
-  example end: 5
----
-modules:
-  - docassemble.base.util
+  example start: 1
+  example end: 4
 ---
 objects:
   - user: Individual
@@ -18,7 +15,7 @@ code: |
 ---
 mandatory: True
 code: |
-  need(welcome_screen, map_shown)
+  need(welcome_screen, user.address.address, enemy.name.first, enemy.address.address, map_shown)
 ---
 event: map_shown
 question: Map of you and your enemy

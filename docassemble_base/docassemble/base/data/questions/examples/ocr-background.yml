@@ -2,15 +2,8 @@ metadata:
   title: OCR text in the background 
   short title: background OCR
   documentation: "https://docassemble.org/docs/functions.html#ocr_file"
-  example start: 2
-  example end: 10
----
-modules:
-  - docassemble.base.util
----
-initial: True
-code: |
-  process_action()
+  example start: 1
+  example end: 8
 ---
 mandatory: True
 code: |
@@ -43,7 +36,7 @@ question: |
   How do you describe what happened?
 fields:
   - no label: user_testimonial
-    datatype: area
+    input type: area
 ---
 event: waiting_screen
 reload: 5

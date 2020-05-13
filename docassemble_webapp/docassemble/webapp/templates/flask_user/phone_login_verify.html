@@ -4,8 +4,8 @@
 {% from "base_templates/form_macros.html" import render_submit_field, render_field %}
 <h1>{{ title }}</h1>
 
-<div class="panel panel-default">
-  <div class="panel-body">
+<div class="card">
+  <div class="card-body">
     {{ description }}
   </div>
 </div>
@@ -13,10 +13,10 @@
 <form action="" method="POST" role="form" class="form">
   {{ form.hidden_tag() }}
   <div class="form-group">
-    {{ render_field(form.verification_code, tabindex=50) }}
+    {{ render_field(form.verification_code) }}
   </div>
   <div class="form-actions">
-    {{ render_submit_field(form.submit, tabindex=100) }}
+    {{ render_submit_field(form.submit) }}
   </div>
 </form>
 

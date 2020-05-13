@@ -11,7 +11,7 @@ fields:
 ---
 question: What is your favorite vegetable?
 fields:
-  - Animal: favorite_vegetable
+  - Vegetable: favorite_vegetable
 ---
 mandatory: True
 question: What a coincidence!
@@ -19,4 +19,3 @@ subquestion: |
   My favorite animal is the ${ favorite_animal }, too!
 buttons:
   - Exit: exit
----

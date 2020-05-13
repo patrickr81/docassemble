@@ -2,8 +2,10 @@ import datetime
 import os
 import time
 import pytz
+import mimetypes
 from azure.storage.blob import BlockBlobService
 from azure.storage.blob import BlobPermissions
+from azure.storage.blob import ContentSettings
 
 epoch = pytz.utc.localize(datetime.datetime.utcfromtimestamp(0))
 
@@ -29,7 +31,7 @@ class azureobject(object):
         return None
     def list_keys(self, prefix):
         output = list()
-        for blob in self.conn.list_blobs(self.container, prefix=prefix, delimiter='/'):
+        for blob in self.conn.list_blobs(self.container, prefix=prefix):
             output.append(azurekey(self, blob.name))
         return output
     
@@ -58,7 +60,14 @@ class azurekey(object):
         secs = (self.last_modified - epoch).total_seconds()
         os.utime(filename, (secs, secs))
     def set_contents_from_filename(self, filename):
-        self.azure_object.conn.create_blob_from_path(self.azure_object.container, self.name, filename)
+        if hasattr(self, 'content_type') and self.content_type is not None:
+            mimetype = self.content_type
+        else:
+            mimetype, encoding = mimetypes.guess_type(filename)
+        if mimetype is not None:
+            self.azure_object.conn.create_blob_from_path(self.azure_object.container, self.name, filename, content_settings=ContentSettings(content_type=mimetype))
+        else:
+            self.azure_object.conn.create_blob_from_path(self.azure_object.container, self.name, filename)
         self.get_properties()
         secs = (self.last_modified - epoch).total_seconds()
         os.utime(filename, (secs, secs))
@@ -68,11 +77,13 @@ class azurekey(object):
         if not hasattr(self, 'last_modified'):
             self.get_properties()
         return (self.last_modified - epoch).total_seconds()
-    def generate_url(self, seconds, display_filename=None, content_type=None):
+    def generate_url(self, seconds, display_filename=None, content_type=None, inline=False):
         if content_type is None:
             content_type = self.content_type
         params = dict(permission=BlobPermissions.READ, expiry=datetime.datetime.utcnow() + datetime.timedelta(seconds=seconds), content_type=content_type)
         if display_filename is not None:
             params['content_disposition'] = "attachment; filename=" + display_filename
+        elif inline:
+            params['content_disposition'] = "inline"
         sas_token = self.azure_object.conn.generate_blob_shared_access_signature(self.azure_object.container, self.name, **params)
         return self.azure_object.conn.make_blob_url(self.azure_object.container, self.name, sas_token=sas_token)

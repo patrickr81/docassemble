@@ -5,51 +5,61 @@
 
 <h1>{{ word('Edit User Profile') }}</h1>
 
-{%- if form.uses_mfa.data or form.confirmed_at.data is not none %}
-<ul class="nav nav-pills nav-stacked">
+{%- if form.uses_mfa.data or ((not is_self) and form.confirmed_at.data is not none) or ((not is_self) and config['ENABLE_DELETE_ACCOUNT']) %}
+<div class="row">
+    <div class="col text-right">
+        <div class="dropdown">
+            <button class="btn {{ config['BUTTON_STYLE'] }}secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-cogs"></i> {{ word('Other settings') }}</button>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
 {%- if form.uses_mfa.data %}
-  <li>
-    <a href="?disable_mfa=1">{{ word('Disable two-factor authentication') }}</a>
-  </li>
+                <a class="dropdown-item" href="?disable_mfa=1">{{ word('Disable two-factor authentication') }}</a>
 {%- endif %}
-{%- if form.confirmed_at.data is not none %}
-  <li>
-    <a href="?reset_email_confirmation=1">{{ word('Reset e-mail confirmation') }}</a>
-  </li>
+{%- if (not is_self) and form.confirmed_at.data is not none %}
+                <a class="dropdown-item" href="?reset_email_confirmation=1">{{ word('Reset e-mail confirmation') }}</a>
 {%- endif %}
-</ul>
+{%- if (not is_self) and config['ENABLE_DELETE_ACCOUNT'] %}
+                <a class="dropdown-item dadeleteaccount" href="?delete_account=1">{{ word('Delete account but keep shared sessions') }}</a>
+                <a class="dropdown-item dadeleteaccount" href="?delete_account_complete=1">{{ word('Delete account and shared sessions') }}</a>
+{%- endif %}
+            </div>
+        </div>
+    </div>
+</div>
 {%- endif %}
 
-<form action="" method="POST" role="form" class="form">
+<form action="" method="POST" role="form">
     {{ form.hidden_tag() }}
     
+{%- if not is_self %}
     {{ render_checkbox_field(form.active) }}
+{%- endif %}
 
-    {{ render_multiselect_field(form.role_id) }}
+    {{ render_multiselect_field(form.role_id, undernote=privileges_note) }}
 
-    {{ render_field(form.email, tabindex=235) }}
+    {{ render_field(form.email) }}
 
-    {{ render_field(form.first_name, tabindex=240) }}
+    {{ render_field(form.first_name) }}
 
-    {{ render_field(form.last_name, tabindex=250) }}
+    {{ render_field(form.last_name) }}
 
-    {{ render_field(form.country, tabindex=260, right_message='<a target="_blank" href="http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">List of Country Codes</a>') }}
+    {{ render_field(form.country, right_message='<a target="_blank" href="http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">List of Country Codes</a>') }}
 
-    {{ render_field(form.subdivisionfirst, tabindex=270) }}
+    {{ render_field(form.subdivisionfirst) }}
 
-    {{ render_field(form.subdivisionsecond, tabindex=280) }}
+    {{ render_field(form.subdivisionsecond) }}
 
-    {{ render_field(form.subdivisionthird, tabindex=290) }}
+    {{ render_field(form.subdivisionthird) }}
 
-    {{ render_field(form.organization, tabindex=300) }}
+    {{ render_field(form.organization) }}
     
-    {{ render_field(form.language, tabindex=310) }}
+    {{ render_field(form.language) }}
     
-    {{ render_field(form.timezone, tabindex=320) }}
+    {{ render_field(form.timezone) }}
 
     <br>
     <div class="form-actions">
-      {{ render_submit_field(form.submit, tabindex=330) }}
+      {{ render_submit_field(form.submit) }}
+      {{ render_submit_field(form.cancel, class="btn " + config['BUTTON_STYLE'] + "warning " + config['BUTTON_CLASS']) }}
     </div>
 </form>
 

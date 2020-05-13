@@ -1,11 +1,8 @@
 metadata:
   title: Interviews
   documentation: "https://docassemble.org/docs/config.html#session list interview"
-  example start: 2
-  example end: 7
----
-modules:
-  - docassemble.base.util
+  example start: 1
+  example end: 6
 ---
 initial: True
 code: |
@@ -19,7 +16,6 @@ code: |
   if len(list_of_interviews) > 0:
     list_of_interviews += [dict()]
 ---
-reconsider: True
 table: session_table
 rows: |
   list_of_interviews
@@ -29,7 +25,7 @@ columns:
   - Started: |
       row_item['modtime'] if 'modtime' in row_item else ''
   - Delete: |
-      '<a href="' + url_action('delete', filename=row_item['filename'], session=row_item['session']) + '" class="label label-warning">Delete</a>' if 'title' in row_item else '<a href="' + url_action('delete_all') + '" class="label label-danger">Delete All</a>'
+      action_button_html(url_action('delete', filename=row_item['filename'], session=row_item['session']), color='warning', label='Delete') if 'title' in row_item else action_button_html(url_action('delete_all'), color='danger', label='Delete All')
 ---
 prevent going back: True
 mandatory: True

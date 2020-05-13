@@ -1,13 +1,10 @@
 metadata:
   title: Fields example
-  example start: 4
+  example start: 3
   documentation: "https://docassemble.org/docs/fields.html#fields"
 ---
 imports:
   - us
----
-modules:
-  - docassemble.base.util
 ---
 mandatory: True
 question: All done
@@ -17,7 +14,7 @@ subquestion: |
 question: Tell me more about yourself
 fields:
   - Description: user_description
-    datatype: area
+    input type: area
     hint: |
       E.g., you can describe your
       hair color, eye color, 

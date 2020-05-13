@@ -1,11 +1,10 @@
-#! /usr/bin/env python
-
 import os
 import stat
 import sys
 import psycopg2
 import pkg_resources
 import docassemble.base.config
+
 if __name__ == "__main__":
     docassemble.base.config.load(arguments=sys.argv)
 from docassemble.base.config import daconfig

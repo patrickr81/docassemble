@@ -3,7 +3,7 @@ import subprocess
 from PIL import Image, ImageEnhance
 from docassemble.base.functions import get_config, get_language, ReturnValue
 from docassemble.base.core import DAFile, DAFileList
-from pyPdf import PdfFileReader
+from PyPDF2 import PdfFileReader
 from docassemble.base.logger import logmessage
 import pycountry
 import sys
@@ -31,14 +31,14 @@ def ocr_finalize(*pargs, **kwargs):
 
 def get_available_languages():
     try:
-        output = subprocess.check_output(['tesseract', '--list-langs'], stderr=subprocess.STDOUT)
+        output = subprocess.check_output(['tesseract', '--list-langs'], stderr=subprocess.STDOUT).decode()
     except subprocess.CalledProcessError as err:
         raise Exception("get_available_languages: failed to list available languages: " + str(err))
     else:
         result = output.splitlines()
         result.pop(0)
         return result
-    
+
 def ocr_page_tasks(image_file, language=None, psm=6, x=None, y=None, W=None, H=None, user_code=None, **kwargs):
     #sys.stderr.write("ocr_page_tasks running\n")
     if not (isinstance(image_file, DAFile) or isinstance(image_file, DAFileList)):
@@ -87,7 +87,7 @@ def ocr_page_tasks(image_file, language=None, psm=6, x=None, y=None, W=None, H=N
                 raise Exception("document with extension " + doc.extension + " is not a readable image file")
             if doc.extension == 'pdf':
                 #doc.page_path(1, 'page')
-                for i in xrange(PdfFileReader(open(doc.path(), 'rb')).getNumPages()):
+                for i in range(PdfFileReader(open(doc.path(), 'rb')).getNumPages()):
                     todo.append(dict(doc=doc, page=i+1, lang=lang, ocr_resolution=ocr_resolution, psm=psm, x=x, y=y, W=W, H=H, pdf_to_ppm=pdf_to_ppm, user_code=user_code))
             else:
                 todo.append(dict(doc=doc, page=None, lang=lang, ocr_resolution=ocr_resolution, psm=psm, x=x, y=y, W=W, H=H, pdf_to_ppm=pdf_to_ppm, user_code=user_code))
@@ -96,20 +96,28 @@ def ocr_page_tasks(image_file, language=None, psm=6, x=None, y=None, W=None, H=N
 
 def make_png_for_pdf(doc, prefix, resolution, pdf_to_ppm, page=None):
     path = doc.path()
+    make_png_for_pdf_path(path, prefix, resolution, pdf_to_ppm, page=page)
+    doc.commit()
+
+def make_png_for_pdf_path(path, prefix, resolution, pdf_to_ppm, page=None):
     basefile = os.path.splitext(path)[0]
     test_path = basefile + prefix + '-in-progress'
     with open(test_path, 'a'):
         os.utime(test_path, None)
     if page is None:
-        result = subprocess.call([str(pdf_to_ppm), '-r', str(resolution), '-png', str(path), str(basefile + prefix)])
+        try:
+            result = subprocess.run([str(pdf_to_ppm), '-r', str(resolution), '-png', str(path), str(basefile + prefix)], timeout=3600).returncode
+        except subprocess.TimeoutExpired:
+            result = 1
     else:
-        result = subprocess.call([str(pdf_to_ppm), '-f', str(page), '-f', str(page), '-r', str(resolution), '-png', str(path), str(basefile + prefix)])
+        try:
+            result = subprocess.run([str(pdf_to_ppm), '-f', str(page), '-l', str(page), '-r', str(resolution), '-png', str(path), str(basefile + prefix)], timeout=3600).returncode
+        except subprocess.TimeoutExpired:
+            result = 1
     if os.path.isfile(test_path):
         os.remove(test_path)
     if result > 0:
         raise Exception("Unable to extract images from PDF file")
-    doc.commit()
-    return
 
 def ocr_page(doc=None, lang=None, pdf_to_ppm='pdf_to_ppm', ocr_resolution=300, psm=6, page=None, x=None, y=None, W=None, H=None, user_code=None):
     """Runs optical character recognition on an image or a page of a PDF file and returns the recognized text."""
@@ -140,7 +148,10 @@ def ocr_page(doc=None, lang=None, pdf_to_ppm='pdf_to_ppm', ocr_resolution=300, p
             if H is not None:
                 args.extend(['-H', str(H)])
             args.extend(['-singlefile', '-png', str(path), str(output_file.name)])
-            result = subprocess.call(args)
+            try:
+                result = subprocess.run(args, timeout=120).returncode
+            except subprocess.TimeoutExpired:
+                result = 1
             if result > 0:
                 return word("(Unable to extract images from PDF file)")
             the_file = output_file.name + '.png'
@@ -156,10 +167,11 @@ def ocr_page(doc=None, lang=None, pdf_to_ppm='pdf_to_ppm', ocr_resolution=300, p
     file_to_read = tempfile.TemporaryFile()
     final_image.save(file_to_read, "PNG")
     file_to_read.seek(0)
+    params = ['tesseract', 'stdin', 'stdout', '-l', str(lang), '--psm', str(psm)]
+    sys.stderr.write("ocr_page: piping to command " + " ".join(params) + "\n")
     try:
-        text = subprocess.check_output(['tesseract', 'stdin', 'stdout', '-l', str(lang), '-psm', str(psm)], stdin=file_to_read, stderr=subprocess.STDOUT)
+        text = subprocess.check_output(params, stdin=file_to_read).decode()
     except subprocess.CalledProcessError as err:
-        raise Exception("ocr_page: failed to list available languages: " + str(err) + " " + str(err.output))
+        raise Exception("ocr_page: failed to run tesseract with command " + " ".join(params) + ": " + str(err) + " " + str(err.output.decode()))
     sys.stderr.write("ocr_page finished with page " + str(page) + "\n")
-    return dict(page=page, text=text.decode('utf8'))
-
+    return dict(page=page, text=text)

@@ -1,8 +1,14 @@
 from flask_wtf import FlaskForm
 from docassemble.base.functions import word
-from wtforms import validators, ValidationError, StringField, SubmitField, TextAreaField, SelectMultipleField, SelectField, FileField, HiddenField, RadioField
+from wtforms import validators, ValidationError, StringField, SubmitField, TextAreaField, SelectMultipleField, SelectField, FileField, HiddenField, RadioField, BooleanField
 import re
 import sys
+
+def validate_project_name(form, field):
+    if re.search('^[0-9]', field.data):
+        raise ValidationError(word('Project name cannot begin with a number'))
+    if re.search('[^A-Za-z0-9]', field.data):
+        raise ValidationError(word('Valid characters are: A-Z, a-z, 0-9'))
 
 def validate_name(form, field):
     if re.search('[^A-Za-z0-9\-]', field.data):
@@ -35,6 +41,7 @@ class ConfigForm(FlaskForm):
     cancel = SubmitField(word('Cancel'))
 
 class PlaygroundForm(FlaskForm):
+    status = StringField('Status')
     original_playground_name = StringField(word('Original Name'))
     playground_name = StringField(word('Name'), [validators.Length(min=1, max=255)])
     playground_content = TextAreaField(word('Playground YAML'))
@@ -55,15 +62,21 @@ class LogForm(FlaskForm):
 class Utilities(FlaskForm):
     pdfdocxfile = FileField(word('PDF/DOCX File'))
     scan = SubmitField(word('Scan'))
+    interview = StringField(word('Interview'))
+    interview_submit = SubmitField(word('Download'))
     language = StringField(word('Language'))
     language_submit = SubmitField(word('Translate'))
+    officeaddin_version = StringField(word('Version'), default='0.0.0.1')
+    officeaddin_submit = SubmitField(word('Download'))
     
 class PlaygroundFilesForm(FlaskForm):
+    purpose = StringField('Purpose')
     section = StringField(word('Section'))
     uploadfile = FileField(word('File to upload'))
     submit = SubmitField(word('Upload'))
 
 class PlaygroundFilesEditForm(FlaskForm):
+    purpose = StringField('Purpose')
     section = StringField(word('Section'))
     original_file_name = StringField(word('Original Name'))
     file_name = StringField(word('Name'), [validators.Length(min=1, max=255)])
@@ -72,6 +85,19 @@ class PlaygroundFilesEditForm(FlaskForm):
     active_file = StringField(word('Active File'))
     submit = SubmitField(word('Save'))
     delete = SubmitField(word('Delete'))
+
+class RenameProject(FlaskForm):
+    name = StringField(word('New Name'), validators=[
+        validators.Required(word('Project name is required')), validate_project_name])
+    submit = SubmitField(word('Rename'))
+
+class DeleteProject(FlaskForm):
+    submit = SubmitField(word('Delete'))
+
+class NewProject(FlaskForm):
+    name = StringField(word('Name'), validators=[
+        validators.Required(word('Project name is required')), validate_project_name])
+    submit = SubmitField(word('Save'))
 
 class PullPlaygroundPackage(FlaskForm):
     github_url = StringField(word('GitHub URL'))
@@ -87,7 +113,7 @@ class PlaygroundPackagesForm(FlaskForm):
     license = StringField(word('License'), default='The MIT License (MIT)', validators=[validators.Length(min=0, max=255)])
     author_name = StringField(word('Author Name'), validators=[validators.Length(min=0, max=255)])
     author_email = StringField(word('Author E-mail'), validators=[validators.Length(min=0, max=255)])
-    description = TextAreaField(word('Description'), validators=[validators.Length(min=0, max=255)], default="A docassemble extension.")
+    description = StringField(word('Description'), validators=[validators.Length(min=0, max=255)], default="A docassemble extension.")
     version = StringField(word('Version'), validators=[validators.Length(min=0, max=255)], default="0.0.1")
     url = StringField(word('URL'), validators=[validators.Length(min=0, max=255)], default="")
     dependencies = SelectMultipleField(word('Dependencies'))
@@ -98,7 +124,10 @@ class PlaygroundPackagesForm(FlaskForm):
     sources_files = SelectMultipleField(word('Source files'))
     readme = TextAreaField(word('README file'), default='')
     github_branch = SelectField(word('Branch'))
+    github_branch_new = StringField(word('Name of new branch'))
     commit_message = StringField(word('Commit message'), default="")
+    pypi_also = BooleanField(word('Publish on PyPI also'))
+    install_also = BooleanField(word('Install package on this server also'))
     submit = SubmitField(word('Save'))
     download = SubmitField(word('Download'))
     install = SubmitField(word('Install'))
@@ -110,11 +139,20 @@ class PlaygroundPackagesForm(FlaskForm):
 class GoogleDriveForm(FlaskForm):
     folder = SelectField(word('Folder'))
     submit = SubmitField(word('Save'))
+    cancel = SubmitField(word('Cancel'))
+
+class OneDriveForm(FlaskForm):
+    folder = SelectField(word('Folder'))
+    submit = SubmitField(word('Save'))
+    cancel = SubmitField(word('Cancel'))
 
 class GitHubForm(FlaskForm):
+    shared = BooleanField(word('Access shared repositories'))
+    orgs = BooleanField(word('Access organizational repositories'))
+    save = SubmitField(word('Save changes'))
     configure = SubmitField(word('Configure'))
     unconfigure = SubmitField(word('Disable'))
-    cancel = SubmitField(word('Cancel'))
+    cancel = SubmitField(word('Back to profile'))
 
 class TrainingForm(FlaskForm):
     the_package = HiddenField()
@@ -129,6 +167,10 @@ class TrainingUploadForm(FlaskForm):
     jsonfile = FileField(word('JSON file'))
     importtype = RadioField(word('Import method'))
     submit = SubmitField(word('Import'))
+
+class AddinUploadForm(FlaskForm):
+    content = HiddenField()
+    filename = HiddenField()
 
 class APIKey(FlaskForm):
     action = HiddenField()
@@ -146,10 +188,10 @@ class APIKey(FlaskForm):
             return False
         has_error = False
         if self.action.data in ('edit', 'new'):
-            if type(self.name.data) not in (str, unicode) or not re.search(r'[A-Za-z0-9]', self.name.data):
+            if (not isinstance(self.name.data, str)) or not re.search(r'[A-Za-z0-9]', self.name.data):
                 self.name.errors.append(word("The name must be filled in."))
                 has_error = True
-            if type(self.method.data) not in (str, unicode) or self.method.data not in ('referer', 'ip'):
+            if (not isinstance(self.method.data, str)) or self.method.data not in ('referer', 'ip', 'none'):
                 self.name.errors.append(word("You must select an option."))
                 has_error = True
         if has_error:

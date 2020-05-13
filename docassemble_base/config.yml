@@ -1,4 +1,6 @@
 debug: True
+enable playground: True
+allow demo: True
 exitpage: https://docassemble.org
 db:
   prefix: postgresql+psycopg2://
@@ -17,6 +19,11 @@ oauth:
     enable: False
     id: 23123018240-32239fj28fj4fuhf394h3984eurhfurh.apps.googleusercontent.com
     secret: DGE34gdgerg3GDG545tgdfRf
+  auth0:
+    enable: True
+    id: ceyd6imTYxTNmuj2CYpwH_cEhdWt93e6
+    secret: LLGEBDrrgDFDfBsFjErsdSdsntkrtAbfa4ee3ss_adfdSDFEWEsfgHTerjNsd3dD
+    domain: example.auth0.com
   twitter:
     enable: False
     id: Iweh63ReKfOCttaUBE3t27TET
@@ -26,6 +33,7 @@ oauth:
     id: e378beb1-0bfb-45bc-9b4b-604dcf640c87
     secret: UwHEze20pzSO+lvywJOjcos3v7Kd6Y7tsaCYTG7Panc=
 secretkey: 28asflwjeifwlfjsd2fejfiefw3g4o87
+backup days: 14
 default title: docassemble
 default short title: doc
 mail:
@@ -34,12 +42,9 @@ mail:
   server: localhost
   default sender: '"Administrator" <no-reply@example.com>'
 server administrator email: support@example.com
-default interview: docassemble.demo:data/questions/questions.yml
+default interview: docassemble.base:data/questions/default-interview.yml
 language: en
 locale: en_US.utf8
-default admin account:
-  email: admin@admin.com
-  password: password
 voicerss:
   enable: False
   key: ae8734983948ebc98239e9898f998432
@@ -68,3 +73,5 @@ external hostname: Null
 root: /
 words:
   - docassemble.base:data/sources/us-words.yml
+allow non-idempotent questions: False
+new markdown to docx: True

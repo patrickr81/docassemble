@@ -3,19 +3,14 @@ metadata:
   short title: People list
   documentation: "https://docassemble.org/docs/groups.html#list of objects"
   example start: 1
-  example end: 9
----
-modules:
-  - docassemble.base.util
+  example end: 7
 ---
 objects:
-  - friend: DAList
----
-mandatory: True
-code: |
-  friend.there_are_any = True
-  friend.object_type = Individual
-  friend.complete_attribute = 'complete'
+  - friend: |
+      DAList.using(
+        object_type=Individual,
+        complete_attribute='complete',
+        there_are_any=True)
 ---
 mandatory: True
 question: |
@@ -30,6 +25,7 @@ subquestion: |
   % endfor
 ---
 code: |
+  friend[i].name.first
   friend[i].birthdate
   friend[i].favorite_animal
   friend[i].complete = True
@@ -45,6 +41,7 @@ question: |
   ${ friend[i].possessive('birthdate') }?
 fields:
   - Birthdate: friend[i].birthdate
+    datatype: date
 ---
 question: |
   What is

@@ -1,12 +1,9 @@
 metadata:
   title: Table block
   short title: Table
-  documentation: "https://docassemble.org/docs/template.html#table"
-  example start: 5
-  example end: 6
----
-modules:
-  - docassemble.base.util
+  documentation: "https://docassemble.org/docs/initial.html#table"
+  example start: 4
+  example end: 5
 ---
 objects:
   - fruit: DAList

@@ -7,8 +7,12 @@
 #
 # This script will obtain new versions of the Javascript and CSS files
 
-export DA_ACTIVATE="${DA_PYTHON:-/usr/share/docassemble/local}/bin/activate"
-source $DA_ACTIVATE # for running pygmentize
+export DA_ROOT="${DA_ROOT:-/usr/share/docassemble}"
+export DAPYTHONVERSION="${DAPYTHONVERSION:-3}"
+export DA_DEFAULT_LOCAL="local3.6"
+
+export DA_ACTIVATE="${DA_PYTHON:-${DA_ROOT}/${DA_DEFAULT_LOCAL}}/bin/activate"
+source "${DA_ACTIVATE}"
 
 cd static/app
 rm -f jasny-bootstrap.min.css

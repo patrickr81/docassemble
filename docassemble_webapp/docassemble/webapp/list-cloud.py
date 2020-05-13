@@ -7,6 +7,7 @@ def main():
         s3_config['enable'] = True
         s3_config['access key id'] = os.environ.get('S3ACCESSKEY', None)
         s3_config['secret access key'] = os.environ.get('S3SECRETACCESSKEY', None)
+        s3_config['endpoint url'] = os.environ.get('S3ENDPOINTURL', None)
         import docassemble.webapp.amazon
         cloud = docassemble.webapp.amazon.s3object(s3_config)
     elif os.environ.get('AZUREENABLE', 'false') == 'true':
@@ -30,7 +31,7 @@ def recursive_list(cloud, prefix):
         if key.name != prefix and key.name.endswith('/'):
             recursive_list(cloud, key.name)
         else:
-            print key.name
+            print(key.name)
 
 if __name__ == "__main__":
     main()

@@ -102,9 +102,9 @@ comment: |
 ---
 auto terms:
   rhododendron: |
-     A genus of shrubs or small trees, often having handsome
-     evergreen leaves, and remarkable for the beauty of their
-     flowers.
+    A genus of shrubs or small trees, often having handsome
+    evergreen leaves, and remarkable for the beauty of their
+    flowers.
   custody order: |
     An order signed by a family court judge that says who gets to have
     what kind of custody over a child.
@@ -257,7 +257,7 @@ subquestion: |
   relationship.
 
   % if user_understands_no_attorney_client_relationship == 'unsure':
-  We suggest that you call us at 215-981-3800 to talk to us about the
+  We suggest that you call us at 202-555-4344 to talk to us about the
   kinds of services we provide.
   % endif
 decoration: exit
@@ -294,9 +294,8 @@ subquestion: |
   % if interface() == 'web':
   In the navigation bar above, you can click "[Help]" to see the help
   text associated with the interview and with the individual question
-  (if any).  If "Help <i class="glyphicon glyphicon-star"></i>"
-  appears in the navigation bar, that means help text specific to the
-  question is available.
+  (if any).  If "Help :star:" appears in the navigation bar, that
+  means help text specific to the question is available.
 
   Click "Source" to toggle the display of the [YAML] code used to
   generate the question.  (Note: the "Source" tab is available because
@@ -472,8 +471,8 @@ comment: |
 question: |
   Why do you think you deserve to win this case?
 fields:
-  - no label: explanation
-    datatype: area
+  - no label: explanation_of_merits
+    input type: area
     hint: |
       I should win because . . .
 ---
@@ -544,7 +543,7 @@ fields:
   - Amenities: x.address.amenities
     datatype: checkboxes
     code: |
-      {u'chimney': u'Chimney', 'stove': 'Stove'}
+      {'chimney': 'Chimney', 'stove': 'Stove'}
   - note: |
       How would you describe the general *milieu* of ${ x.possessive('abode') }?
   - no label: x.address.milieu
@@ -600,14 +599,17 @@ comment: |
 ---
 generic object: Individual
 question: |
-  Please upload one or more pictures of ${ x.yourself_or_name() }.
+  Please upload a picture of ${ x.yourself_or_name() }.
 decoration: picture
 fields:
   - A test file: x.picture
-    datatype: files
+    datatype: camera
+    accept: |
+      "image/jpeg, image/png"
 comment: |
   You can accept file uploads from users by using the datatypes "file"
-  (for a single file) or "files" (for one or more files).
+  (for a single file) or "files" (for one or more files).  The "camera"
+  file type ensures that only image files are accepted.
 ---
 generic object: Individual
 question: |
@@ -667,9 +669,9 @@ event: client_done
 progress: 100
 question: |
   % if client_has_standing:
-    Congratulations!  You have a valid claim.
+  Congratulations!  You have a valid claim.
   % else:
-    Sorry, you do not have a valid claim.
+  Sorry, you do not have a valid claim.
   % endif
 decoration: finishline
 subquestion: |
@@ -677,7 +679,7 @@ subquestion: |
 
   (Note: the option to see documents in Markdown format is
   hidden when **docassemble** is configured as a production server.
-  End users will not see these options.)
+  End users will not see this option.)
 help: |
   This is the end of the interview, ${ client }.  You can exit or
   restart.
@@ -782,7 +784,7 @@ attachments:
       aesthetic taxidermy Carles irony fixie. Hella organic swag pork
       belly Bushwick.
 
-      If you have any questions, you can call us at 215-391-9686.
+      If you have any questions, you can call us at 202-555-4344.
 
       Sincerely,
 
@@ -840,7 +842,7 @@ attachments:
       % endfor
       
       This petition should be granted.
-      ${ fix_punctuation(explanation) }
+      ${ fix_punctuation(explanation_of_merits) }
       % if client.picture_verified:
       Look how cute I am:
 
@@ -880,10 +882,9 @@ subquestion: |
 
   En la barra de navegación de arriba, puede hacer clic en "Ayuda"
   para ver el texto de ayuda asociado a la entrevista y con la
-  pregunta individual. Si "Ayuda <i class="glyphicon
-  glyphicon-star"></i>" aparece en la barra de navegación, eso
-  significa que el texto de ayuda específica a la cuestión está
-  disponible.
+  pregunta individual. Si "Ayuda :star:" aparece en la barra de 
+  navegación, eso significa que el texto de ayuda específica a la 
+  cuestión está disponible.
 
   Haga clic en "Fuente" para cambiar la visualización del código
   [YAML] utilizado para generar la pregunta.

@@ -20,12 +20,6 @@ comment: |
   A "modules" section imports class names and function names from
   Python modules.  The docassemble.base.legal module defines some
   object classes and functions that are useful in legal applications.
-  
-  Using docassemble.base.legal in "modules" also has the effect of
-  importing all of the class names and function names that are in
-  docassemble.base.util.  So you never need to include both
-  docassemble.base.legal and docassemble.base.util together in the
-  same "modules" block.
 ---
 default role: client
 code: |
@@ -64,15 +58,15 @@ event: role_event
 question: You are done for now.
 subquestion: |
   % if 'advocate' in role_needed:
-    An advocate needs to review your answers before you can proceed.
+  An advocate needs to review your answers before you can proceed.
+  
+  Please remember the following link and come back to it when you
+  receive notice to do so:
 
-    Please remember the following link and come back to it when you
-    receive notice to do so:
-
-    [${ interview_url() }](${ interview_url() })
+  [${ interview_url() }](${ interview_url() })
     
   % else:
-    Thanks, the client needs to resume the interview now.
+  Thanks, the client needs to resume the interview now.
   % endif
 decoration: exit
 buttons:
@@ -288,27 +282,18 @@ question: |
   Is this ${ x.possessive('signature') }?
 subquestion: |
   ${ x.signature.show() }
+field: x.signature_verified_button
 buttons:
-  - "Yes":
-      generic object: Individual
-      code: |
-        x.signature_verified = True
-  - "No":
-      generic object: Individual
-      code: |
-        x.signature_verified = False
-  - "Let me try again":
-      generic object: Individual
-      code: |
-        force_ask('x.signature')
-comment: |
-  This is an example of a multiple choice question where selecting an
-  option causes code to be run.  Each multiple choice option contains
-  an embedded block.
-  
-  Note that in order for an "embedded" code or question block to use
-  the special variable "x," you need to declare a generic object
-  within the embedded code or question.
+  - Yes: True
+  - No: False
+  - Let me try again: Null
+---
+generic object: Individual
+code: |
+  if x.signature_verified_button in (True, False):
+    x.signature_verified = x.signature_verified_button
+  else:
+    force_ask('x.signature', 'x.signature_verified_button')
 ---
 generic object: Individual
 question: |
@@ -494,7 +479,8 @@ subquestion: |
   A "plaintiff" is a person who starts a case by filing a lawsuit
   against a person called a "defendant."  Plaintiffs and defendants
   are the "parties" in a case.
-decoration: scalesofjustice
+decoration: |
+  scalesofjustice
 yesno: x.is_plaintiff
 ---
 generic object: Individual
@@ -643,4 +629,19 @@ sets:
 code: |
   x.geolocate()
 comment: |
+---
+generic object: DAList
+code: |
+  x.gather()
+  x.re_gathered = True
+---
+generic object: DADict
+code: |
+  x.gather()
+  x.re_gathered = True
+---
+generic object: DASet
+code: |
+  x.gather()
+  x.re_gathered = True
 ...

@@ -1,5 +1,6 @@
 metadata:
   title: Allowing documents to be downloaded
+  short title: Download
   documentation: "https://docassemble.org/docs/documents.html#allow downloading"
   example start: 1
   example end: 1
@@ -8,7 +9,7 @@ mandatory: True
 question: Your documents are ready.
 allow downloading: True
 zip filename: Hello_Goodbye.zip
-attachment:
+attachments:
   - name: A hello world document
     filename: Hello_World
     description: |
